@@ -3,24 +3,10 @@
 let productStorage = JSON.parse(localStorage.getItem("product"));
 console.log("cart", productStorage);
 
+
+
 //Organiser chaque élements dans une fonction avec pour paramètre "item"
 productStorage.forEach(item => displayItem(item))
-
-/*const orderButton = document.querySelector("#order")
-orderButton.addEventListener("click", (e) => submitForm(e))
-
-//
-
-/*retrieveItemsFromCache()
-function retrieveItemsFromCache() {//Récupère le panier depuis le local storage
-
-    const fullCart = productStorage.length;
-    for (let i = 0; i > fullCart; i++) {
-        const item = productStorage[i]; //récupération de l'item présent dans le panier
-        
-    }
-
-}*/
 
 
 function displayItem(item) {//Affiche les parties principales créées dans les différentes fonctions
@@ -208,6 +194,8 @@ function createDeleteSettings(item) {//A FAIRE : Créer le bouton "supprimer"
     return div
 }
 
+
+addDeleteFunction()
 function addDeleteFunction() {
 
     let deleteItem = document.getElementsByClassName("deleteItem")
@@ -228,120 +216,201 @@ function addDeleteFunction() {
     }
 
     //console.log("storage", productStorage);
-
-
-}
-addDeleteFunction()
-
-
-//REPRENDRE TOUT A PARTIR DE LA (sans oublier la contante avec le bouton "order" en haut), AVEC LA VIDEO NUMERO 24
-
-/*function submitForm(e) {
-    //alert ("Formulaire envoyé !")
-    e.preventDefault()
-    if (productStorage.length === 0) alert("Veuillez remplir votre panier")
-    const form = document.querySelector(".cart__order__form")
-    const body = createRequestBody()
-
-    fetch("http://localhost:3000/api/products/order", {
-
-        method: "POST",
-        body: JSON.stringify(body),
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-        .then((res) => res.json())
-        .then((data) => console.log(data))
-
-    //console.log(form.elements)
-}
-
-function createRequestBody() {
-
-    const body = {
-        contact: {
-            firstName: "test",
-            lasttName: "test",
-            adress: "test",
-            city: "test",
-            email: "test",
-        },
-        products: ["034707184e8e4eefb46400b5a3774b5f"]
-    }
-    return body
 }
 
 
+//***********************Formulaire de commande*************************/
+
+//Sélection et action du bouton "commander"
 
 
-/*function orderButton(){
+
+
+orderButton()//appel de la fonction du bouton "commander"
+function orderButton() {
 
     const orderButton = document.querySelector("#order")
-
-    orderButton.addEventListener('click', (event) => submitOrder(event))
-
-}
-
-
-function submitOrder(event) {
-    event.preventDefault()
-    const form = document.querySelector(".cart__order__form")
-    console.log(form.elements)
-
-
-}
-
-
-const fetchTest =
-    fetch("http://localhost:3000/api/products/order", {
-
-        //Ajout du type de méthode utilisé
-        method: "POST",
-
-        //Ajout d'un body ou d'un contenu à envoyer
-        body: JSON.stringify(body),
-        headers: {
-            "Content-Type": "application/json"
+    orderButton.addEventListener("click", (event) => {
+        event.preventDefault()
+        if (productStorage.length === 0) {
+            alert("Veuillez ajouter des articles dans votre panier")
+            return //empêche tout envoi tant que le panier est vide
         }
 
+        //********************CONTROLE DU FORMULAIRE********************
+
+        if (invalidForm()) return
+
+        function invalidForm() {
+
+            const formControl = document.querySelector(".cart__order__form")
+            const inputs = formControl.querySelectorAll("input")
+            inputs.forEach((input) => {
+                if (input.value === "") {
+                    alert("Veuillez remplir tous les champs")
+                    return true
+                }
+                return false
+            })
+        }
+
+        //TROUVER BON REGEX POUR NOM, PRENOM ET ADRESSE RURALE
+
+        /*inputName()
+        function inputName(){
+            const firstName = document.querySelector("#firstName").value
+            const lastName = document.querySelector("#lastName").value
+        }
+
+        if(invalidName()) return
+
+        function invalidName(){
+            const nameControl = inputName()
+            const regex = /^[A-Za-z]{3,20}$/
+            if (regex.test(nameControl) === false) {
+                alert ("Veuillez saisir un nom et un prénom valide")
+                return true
+            }
+            return false
+        }*/
+
+        if (invalidEmail()) return
+
+        function invalidEmail() {//comment faire pour interdire les majuscules ?
+            const emailControl = document.querySelector("#email").value
+            const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+            if (regex.test(emailControl) === false) {
+                alert("Veuillez saisir une adresse mail valide en minuscules")
+                return true
+            }
+            return false
+        }
+
+
+        /*if (invalidAddress()) return
+
+        function invalidAddress(){
+            const addressControl = document.querySelector("#address").value
+            const regex = /^[A-Za-z0-9]{10,50}$/
+            if (regex.test(addressControl) === false) {
+                alert ("Veuillez saisir une voie valide avec des chiffres et des lettres")
+                return true
+            }
+            return false
+        }*/
+
+
+        if (invalidCity()) return
+
+        function invalidCity() {
+            const cityControl = document.querySelector("#city").value
+            const regex = /[0-9]{5} [A-Za-z]{3,40}$/
+            if (regex.test(cityControl) === false) {
+                alert("Veuillez saisir un code postal suivi d'une ville valide")
+                return true
+            }
+            return false
+        }
+
+        valuesForm()//appel de la fonction contenant les valeurs du formulaire
+        function valuesForm() {
+            const form = {
+                firstName: document.querySelector("#firstName").value,
+                lastName: document.querySelector("#lastName").value,
+                address: document.querySelector("#address").value,
+                city: document.querySelector("#city").value,
+                email: document.querySelector("#email").value,
+
+            }
+            console.log("form", form);
+            return form
+        }
+
+        /*function formControl(){
+            const form = document.querySelector(".cart__order__form")
+            const input = form.querySelectorAll("input")
+        }*/
+
+        //Envoi du formulaire dans le local Storage
+        let formStorage = JSON.parse(localStorage.getItem("form"));
+        localStorage.setItem("form", JSON.stringify(valuesForm()))
+
+        //Mettre le formulaire et les produits sélectionnés dans un objet à envoyer au serveur
+        const toSend = {
+
+            formStorage,
+            productStorage
+        }
+
+        console.log("to send", toSend);
+
+        //Envoi de l'objet "toSend" vers le serveur
+
+        //J'EN SUIS ICI : ERROR 400 (BAD REQUEST)
+        const sendToBackend = fetch("http://localhost:3000/api/products/order", {
+            method: "POST",
+            body: JSON.stringify(toSend),
+            headers: {"Content-Type": "application/json"}
+        })   
+        .then(res => res.json())
+        .then(console.log("post"))
+        });
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+/*function orderButton(event){ //Ecouter lorsque l'utilisateur soumet le formulaire de commande
+
+    const orderButton = document.querySelector("#order")
+    orderButton.addEventListener("click", (event) => {//Ne fonctionne pas et rafraîchit la page malgré le "preventDefault"//
+        event.preventDefault();
+        formToSend(event);
+        submitOrder(event);
+    } )
+    return orderButton
+}
+
+
+function formToSend(event){
+
+    const form = document.querySelector(".cart__order__form")
+    let formToSubmit = {
+        contact: {
+            firstName: document.querySelector("#firstName"),
+            lastName: document.querySelector("#lastName"),
+            address: document.querySelector("#adress"),
+            city: document.querySelector("#city"),
+            email: document.querySelector("#email"),
+            }
+    }
+    console.log(formToSubmit);
+    return form 
+}
+
+
+function submitOrder(event){
+    
+    fetch("http://localhost:3000/api/products/order", {
+
+        method: "POST",
+        body: formToSend(event),
 
     })
         .then((res) => res.json())
         .then((data) => console.log(data))
 
-
-function createRequestBody() {// creation des éléments à envoyer via "POST"
-    const body = {
-        contact: {
-            firstName: "test",
-            lastName: "test",
-            adress: "test",
-            city: "test",
-            email: "test",
-        },
-        products: ["test"]
-    }
-    return body
-}*/
-
-/**
-*
-* Expects request to contain:
-* contact: {
-*   firstName: string,
-*   lastName: string,
-*   address: string,
-*   city: string,
-*   email: string
-* }
-* products: [string] <-- array of product _id
-*
-*/
-
-
-//localStorage.postItem("product", JSON.stringify(productStorage));
-
-
-
-
+    
+    .catch(function (error) {
+    console.log(error);
+    });
+})*/
