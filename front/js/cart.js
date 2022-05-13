@@ -219,6 +219,9 @@ function addDeleteFunction() {
 }
 
 
+
+
+
 //***********************Formulaire de commande*************************/
 
 //Sélection et action du bouton "commander"
@@ -230,187 +233,112 @@ orderButton()//appel de la fonction du bouton "commander"
 function orderButton() {
 
     const orderButton = document.querySelector("#order")
-    orderButton.addEventListener("click", (event) => {
-        event.preventDefault()
-        if (productStorage.length === 0) {
-            alert("Veuillez ajouter des articles dans votre panier")
-            return //empêche tout envoi tant que le panier est vide
-        }
+    orderButton.addEventListener("click", (event) => submitOrder(event))
+}
 
-        //********************CONTROLE DU FORMULAIRE********************
+function submitOrder(event) {//lui passer le paramètre event
+    event.preventDefault()
+    if (productStorage.length === 0) alert("Veuillez ajouter des articles dans votre panier")
 
-        if (invalidForm()) return
+    //if (invalidOrder()) return (mettre tous les regex dans une fonction ?)
 
-        function invalidForm() {
 
-            const formControl = document.querySelector(".cart__order__form")
-            const inputs = formControl.querySelectorAll("input")
-            inputs.forEach((input) => {
-                if (input.value === "") {
-                    alert("Veuillez remplir tous les champs")
-                    return true
-                }
-                return false
-            })
-        }
+    if (invalidForm()) return
 
-        //TROUVER BON REGEX POUR NOM, PRENOM ET ADRESSE RURALE
+    function invalidForm() {
 
-        /*inputName()
-        function inputName(){
-            const firstName = document.querySelector("#firstName").value
-            const lastName = document.querySelector("#lastName").value
-        }
-
-        if(invalidName()) return
-
-        function invalidName(){
-            const nameControl = inputName()
-            const regex = /^[A-Za-z]{3,20}$/
-            if (regex.test(nameControl) === false) {
-                alert ("Veuillez saisir un nom et un prénom valide")
+        const formControl = document.querySelector(".cart__order__form")
+        const inputs = formControl.querySelectorAll("input")
+        inputs.forEach((input) => {
+            if (input.value === "") {
+                alert("Veuillez remplir tous les champs")
                 return true
             }
             return false
-        }*/
+        })
+    }
 
-        if (invalidEmail()) return
+    if (invalidEmail()) return
 
-        function invalidEmail() {//comment faire pour interdire les majuscules ?
-            const emailControl = document.querySelector("#email").value
-            const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
-            if (regex.test(emailControl) === false) {
-                alert("Veuillez saisir une adresse mail valide en minuscules")
-                return true
-            }
-            return false
+    function invalidEmail() {//comment faire pour interdire les majuscules ?
+        const emailControl = document.querySelector("#email").value
+        const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+        if (regex.test(emailControl) === false) {
+            alert("Veuillez saisir une adresse mail valide en minuscules")
+            return true
         }
+        return false
+    }
 
+    if (invalidCity()) return
 
-        /*if (invalidAddress()) return
-
-        function invalidAddress(){
-            const addressControl = document.querySelector("#address").value
-            const regex = /^[A-Za-z0-9]{10,50}$/
-            if (regex.test(addressControl) === false) {
-                alert ("Veuillez saisir une voie valide avec des chiffres et des lettres")
-                return true
-            }
-            return false
-        }*/
-
-
-        if (invalidCity()) return
-
-        function invalidCity() {
-            const cityControl = document.querySelector("#city").value
-            const regex = /[0-9]{5} [A-Za-z]{3,40}$/
-            if (regex.test(cityControl) === false) {
-                alert("Veuillez saisir un code postal suivi d'une ville valide")
-                return true
-            }
-            return false
+    function invalidCity() {
+        const cityControl = document.querySelector("#city").value
+        const regex = /[0-9]{5} [A-Za-z]{3,40}$/
+        if (regex.test(cityControl) === false) {
+            alert("Veuillez saisir un code postal suivi d'une ville valide")
+            return true
         }
+        return false
+    }
 
-        valuesForm()//appel de la fonction contenant les valeurs du formulaire
-        function valuesForm() {
-            const form = {
-                firstName: document.querySelector("#firstName").value,
-                lastName: document.querySelector("#lastName").value,
-                address: document.querySelector("#address").value,
-                city: document.querySelector("#city").value,
-                email: document.querySelector("#email").value,
 
-            }
-            console.log("form", form);
-            return form
+    const form = document.querySelector("#cart__order__form")
+
+    const firstName = document.querySelector("#firstName").value
+    const lastName = document.querySelector("#lastName").value
+    const address = document.querySelector("#address").value
+    const city = document.querySelector("#city").value
+    const email = document.querySelector("#email").value
+
+
+    const body = createRequestBody()
+
+    function createRequestBody() {
+        const body = {
+            contact: {
+                firstName: firstName,
+                lastName: lastName,
+                address: address,
+                city: city,
+                email: email
+
+            },
+            products: getIds()
         }
-
-        /*function formControl(){
-            const form = document.querySelector(".cart__order__form")
-            const input = form.querySelectorAll("input")
-        }*/
-
-        //Envoi du formulaire dans le local Storage
-        let formStorage = JSON.parse(localStorage.getItem("form"));
-        localStorage.setItem("form", JSON.stringify(valuesForm()))
-
-        //Mettre le formulaire et les produits sélectionnés dans un objet à envoyer au serveur
-        const toSend = {
-
-            formStorage,
-            productStorage
-        }
-
-        console.log("to send", toSend);
-
-        //Envoi de l'objet "toSend" vers le serveur
-
-        //J'EN SUIS ICI : ERROR 400 (BAD REQUEST)
-        const sendToBackend = fetch("http://localhost:3000/api/products/order", {
-            method: "POST",
-            body: JSON.stringify(toSend),
-            headers: {"Content-Type": "application/json"}
-        })   
-        .then(res => res.json())
-        .then(console.log("post"))
-        });
+        return body
 
     }
 
 
+    function getIds(data) { //récupération de l'array comprenant les ids des produits du panier
 
+        let ids = []
+        for (let i = 0; i < productStorage.length; i++) {
 
-
-
-
-
-
-
-
-
-/*function orderButton(event){ //Ecouter lorsque l'utilisateur soumet le formulaire de commande
-
-    const orderButton = document.querySelector("#order")
-    orderButton.addEventListener("click", (event) => {//Ne fonctionne pas et rafraîchit la page malgré le "preventDefault"//
-        event.preventDefault();
-        formToSend(event);
-        submitOrder(event);
-    } )
-    return orderButton
-}
-
-
-function formToSend(event){
-
-    const form = document.querySelector(".cart__order__form")
-    let formToSubmit = {
-        contact: {
-            firstName: document.querySelector("#firstName"),
-            lastName: document.querySelector("#lastName"),
-            address: document.querySelector("#adress"),
-            city: document.querySelector("#city"),
-            email: document.querySelector("#email"),
-            }
+            let id = productStorage[i].idProduct
+            ids.push(id)
+        }
+        return ids
     }
-    console.log(formToSubmit);
-    return form 
-}
 
 
-function submitOrder(event){
-    
     fetch("http://localhost:3000/api/products/order", {
-
         method: "POST",
-        body: formToSend(event),
-
+        body: JSON.stringify(createRequestBody()),
+        headers: {
+            "Content-Type": "application/json"
+        }
     })
         .then((res) => res.json())
-        .then((data) => console.log(data))
+        .then((data) => {
 
-    
-    .catch(function (error) {
-    console.log(error);
-    });
-})*/
+            const orderId = data.orderId
+            //window.location.href permet de changer de page (ici c'est donc lors de l'envoi de la commande avec la requete fetch !)
+            window.location.href = "../html/confirmation.html" + "?orderId=" + orderId // donc dans la barre d'adresse, il y aura "?orderId=" suivi du numero de commande"
+            return console.log(data)
+        })
+
+        .catch((err) => console.log(err))
+
+}
