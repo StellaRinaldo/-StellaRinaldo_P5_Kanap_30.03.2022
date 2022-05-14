@@ -1,57 +1,77 @@
-fetch('http://localhost:3000/api/products')
-    .then((resp) => resp.json()) //récupération des données formatées en json lisible. L'intitulé "resp" est une abréviation de "response"
-    .then(function (data) {
-        //console.log("test", data);
-        const items = document.querySelector('#items'); //selectionner élément "items" dans le DOM (dans le code html, la classe ou l'id)
 
-        //creation d'une boucle "for...of"
+//Requête de l'API
+fetch('http://localhost:3000/api/products')
+    .then((resp) => resp.json()) 
+    .then(function (data) {
+
+        //Création d'une boucle "for...of" pour parcourir le tableau de l'API
         for (let product of data) {
 
-            /*création de l'élément "a" (visible uniquement dans l'inspecteur et non dans le fichier html): 
-            en se basant sur le commentaire HTML fournie qui nous montre ce que doit nous afficher les liens "a"*/
-            let link = document.createElement("a");
+            //Affichage des éléments crées, dans la page d'accueil
+            displayItem()
+            function displayItem() {
+                const linkItem = createLink()
+                const article = createArticle()
+                linkItem.appendChild(article)
 
-            items.appendChild(link); //rajout de l'élément "link" comme élément enfant de "item", donc là on positionne l'élément "a" dans le code
+                const image = createImage()
+                article.appendChild(image)
 
+                const titleItem = createTitleItem()
+                article.appendChild(titleItem)
+                const description = createDescription()
+                article.appendChild(description)
+            }
 
-            link.setAttribute("href", `./product.html?id=${product._id}`);/*inserer dynamiquement l'id dans la boucle. 
-                                ${} permet ici d'intégrer une variable à part sans qu'elle soit concaténée dans l'url*/
+            //Création de la balise "link"           
+            function createLink(){
 
-            //creation de l'element article
+                const items = document.querySelector('#items');
+                const link = document.createElement("a");
+                link.setAttribute("href", `./product.html?id=${product._id}`);/*Insert dynamiquement l'id dans la boucle.*/
+                                                                              
+                items.appendChild(link); 
 
-            let article = document.createElement("article");
+                return link
+            }
+            
+            //Création de la balise "article"
+            function createArticle(){
 
-            link.appendChild(article);
+                const article = document.createElement("article");
+                return article
+            }
 
-            //creation de l'élément image
-            let img = document.createElement('img');
+            //Création de l'image'
+            function createImage(){
 
-            article.appendChild(img);
+                const img = document.createElement('img');
+                img.src = product.imageUrl; 
+                img.alt = product.altTxt;
+    
+                return img
+            }
 
-            img.src = product.imageUrl; //lien = dans la réponse json (c'est product. la catégorie)
-            img.alt = product.altTxt; 
+            //Création du titre du produit
+           function createTitleItem(){
 
-            //creation de l'element h3
-            let h3 = document.createElement("h3");
-
-            article.appendChild(h3)
-
+            const h3 = document.createElement("h3");
             h3.classList.add("productName");
-            h3.innerHTML = product.name;
+            h3.textContent = product.name;
 
-            //creation de l'element p
+            return h3
+
+           }
+
+           //Création de la description du produit
+           function createDescription(){
 
             let p = document.createElement("p");
-
-            article.appendChild(p)
-
             p.classList.add("productDescription");
-            p.innerHTML = product.description;
+            p.textContent = product.description;
 
-            
-           
-
-
+            return p
+           }
         }
     })
     .catch(function (error) {
