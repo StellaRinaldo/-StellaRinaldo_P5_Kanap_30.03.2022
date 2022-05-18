@@ -65,7 +65,9 @@ fetch("http://localhost:3000/api/products/" + getIdItem())
                 option.value = colorsList[i];
                 select.appendChild(option);
                 option.textContent = colorsList[i];
+
             };
+
 
         }
 
@@ -82,6 +84,28 @@ fetch("http://localhost:3000/api/products/" + getIdItem())
         function saveCart(event) {
 
             event.preventDefault();
+
+            if (invalidColor()) return
+            function invalidColor() {
+                let colors = document.querySelector("#colors");
+                if (colors.value === '') {
+                    alert("Veuillez sélectionner une couleur.")
+                    return true
+                }
+
+                return false
+            }
+
+            if (invalidQuantity()) return
+            function invalidQuantity() {
+                let quantity = document.querySelector("#quantity");
+                if (quantity.value === "0") {
+                    alert("Veuillez choisir une quantité.")
+                    return true
+                }
+                return false
+            }
+
 
             const addCart = document.querySelector("#addToCart");
             addCart.textContent = "Article(s) ajouté(s) !";

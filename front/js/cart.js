@@ -1,30 +1,31 @@
 //Récupérer les produits depuis le local storage
 
 let productStorage = JSON.parse(localStorage.getItem("product"));
-console.log("cart", productStorage);
-
+console.log("product", productStorage);
 
 
 //Organiser chaque élements dans une fonction avec pour paramètre "item"
 productStorage.forEach(item => displayItem(item))
 
+//Affichage des éléments crées, dans la page panier
+function displayItem(item) {
 
-function displayItem(item) {//Affiche les parties principales créées dans les différentes fonctions
+    const sectionArticle = document.querySelector("#cart__items")
     const article = createArticle(item)
+    sectionArticle.appendChild(article)
     const div = createImageDiv(item)
     article.appendChild(div)
 
-
     const cartItemContent = createCartContent(item)
     article.appendChild(cartItemContent)
-    displayArticle(article)
+    //displayArticle(article)
 
     displayTotalQuantity()
     displayTotalPrice()
 }
 
-
-function createArticle(item) {//Crée la balise "article" dans le HTML
+//Création de la balise "article"
+function createArticle(item) {
     const article = document.createElement("article")
     article.classList.add("cart__item")
     article.dataset.id = item.idProduct
@@ -33,13 +34,8 @@ function createArticle(item) {//Crée la balise "article" dans le HTML
     return article
 }
 
-
-function displayArticle(article) {//Situe la balise "article" dans le HTML
-    document.querySelector("#cart__items").appendChild(article)
-}
-
-
-function createImageDiv(item) {//Crée la zone où placer l'image du produit avec son texte alternatif
+//Création de l'image
+function createImageDiv(item) {
     const div = document.createElement("div")
     div.classList.add("cart__item__img")
 
@@ -50,51 +46,55 @@ function createImageDiv(item) {//Crée la zone où placer l'image du produit ave
     return div
 }
 
-
-function createCartContent(item) {//Crée la zone contenant les détails du produit
+//Création de la div contenant les informations du produit
+function createCartContent(item) {
 
     const div = document.createElement("div")
     div.classList.add("cart__item__content")
-    const description = createDescription(div, item)
+    const description = createDescription(item)
     const settings = createSettings(item)
     div.appendChild(description)
     div.appendChild(settings)
     return div
 }
 
-function createDescription(div, item) {//Crée la description du produit en générant son nom, sa couleur et son prix
+//Création de la description du produit
+function createDescription(item) {//Crée la description du produit en générant son nom, sa couleur et son prix
 
     const description = document.createElement("div")
     description.classList.add("cart__item__content__description")
 
     const h2 = document.createElement("h2")
     h2.textContent = item.productName
-    const p = document.createElement("p")
-    p.textContent = item.color
 
-    const p2 = document.createElement("p")
+    const colorP = document.createElement("p")
+    colorP.textContent = item.color
 
-    fetch('http://localhost:3000/api/products/' + item.idProduct)//Récupère les infos d'un produit à partir de son id pour en extraire son prix
+    const priceP = document.createElement("p")
+
+    description.appendChild(h2)
+    description.appendChild(colorP)
+    description.appendChild(priceP)
+
+    //Requête du prix du produit depuis l'API
+    //Récupère les infos d'un produit à partir de son id pour en extraire son prix
+    fetch('http://localhost:3000/api/products/' + item.idProduct)
         .then((resp) => resp.json())
         .then(function (data) {
-            p2.innerHTML = data.price + ' €';
 
+            priceP.textContent = data.price + ' €';
         })
 
         .catch(function (error) {
             console.log(error);
         })
 
-    description.appendChild(h2)
-    description.appendChild(p)
-    description.appendChild(p2)
-    div.appendChild(description)
-
     return description
 
 }
 
-function createSettings(item) {//Crée la zone de paramètres de chaque article (au sujet de la quantité et de la suppression)
+//Création de la div contenant les paramètres du produit
+function createSettings(item) {
     const divSettings = document.createElement("div")
     divSettings.classList.add("cart__item__content__settings")
     divSettings.appendChild(addQuantityToSettings(item))
@@ -103,8 +103,8 @@ function createSettings(item) {//Crée la zone de paramètres de chaque article 
     return divSettings
 }
 
-
-function addQuantityToSettings(item) {//Affiche la quantité
+//Affichage de la quantité du produit
+function addQuantityToSettings(item) {
 
     const divQuantity = document.createElement("div")
     divQuantity.classList.add("cart__item__content__settings__quantity")
@@ -127,61 +127,66 @@ function addQuantityToSettings(item) {//Affiche la quantité
     return divQuantity
 }
 
-
-function changeQuantity(idSelect, newValue) {//Ajoute la possibilité de changer la quantité directement depuis la page panier
+//Ajout de la posiibilité de changer la quantité directement depuis la page panier
+function changeQuantity(idSelect, newQuantity) {
 
     const itemSelect = productStorage.find(item => item.idProduct === idSelect)
-    itemSelect.quantity = Number(newValue)
+    itemSelect.quantity = Number(newQuantity)
+    localStorage.setItem("product", JSON.stringify(productStorage))
     console.log(itemSelect);
-
-
+    displayTotalQuantity()
+    displayTotalPrice()
     return itemSelect
 }
 
-
-function displayTotalQuantity() { //A FAIRE : AFFICHER LE NOMBRE TOTAL D'ARTICLES
+//Calcul et affichage du nombre total d'articles
+function displayTotalQuantity() {
 
     let itemQuantity = document.getElementsByName("itemQuantity")
-    //console.log("quantity", itemQuantity);
 
     let totalQuantity = 0
     for (let i = 0; i < itemQuantity.length; i++) {
 
         totalQuantity += itemQuantity[i].valueAsNumber//valueAsNumber renvoi à l'élément présent dans le console.log de itemQuantity("NodeList")
         //Il y a deux termes pour la valeur : "value" qui est en format string et "valueAsNumber" qui est au format "Number"
-        //console.log(itemQuantity)
+        console.log(itemQuantity)
+
     }
+
 
     const total = document.getElementById('totalQuantity')
     total.textContent = totalQuantity
-    //console.log("quantity", totalQuantity);
+
+    console.log("quantity", totalQuantity);
 }
 
+//Affichage du prix total après le calcul de la quantité
 async function displayTotalPrice() {
     let totalPrice = 0
     let itemQuantity = document.getElementsByName("itemQuantity")
+
     for (let i = 0; i < itemQuantity.length; i++) {
 
-        let price = await fetch('http://localhost:3000/api/products/' + productStorage[i].idProduct)//Récupère les infos d'un produit à partir de son id pour en extraire son prix
+        /*Récupère les infos d'un produit à partir de son id pour en extraire son prix*/
+        let price = await fetch('http://localhost:3000/api/products/' + productStorage[i].idProduct)
 
             .then((resp) => resp.json())
             .then(function (data) {
 
                 return data.price
-
             })
 
-        totalPrice += price * itemQuantity[i].valueAsNumber// itemQuantity de la boucle for num2
-
+        totalPrice += price * itemQuantity[i].valueAsNumber
 
     }
+
     const finalTotal = document.getElementById('totalPrice')
     finalTotal.textContent = totalPrice
     console.log("total", totalPrice);
 }
 
-
-function createDeleteSettings(item) {//A FAIRE : Créer le bouton "supprimer"
+//Création du bouton "supprimer"
+function createDeleteSettings(item) {
 
     const div = document.createElement("div")
     div.classList.add("cart__item__content__settings__delete")
@@ -194,13 +199,13 @@ function createDeleteSettings(item) {//A FAIRE : Créer le bouton "supprimer"
     return div
 }
 
-
+//Gestion de la suppression d'un produit
 addDeleteFunction()
 function addDeleteFunction() {
 
     let deleteItem = document.getElementsByClassName("deleteItem")
 
-    for (let i = 0; i < deleteItem.length; i++) {//parcours les produits avec les boutons "supprimer"
+    for (let i = 0; i < deleteItem.length; i++) {
 
         deleteItem[i].addEventListener('click', () => {
 
@@ -211,58 +216,85 @@ function addDeleteFunction() {
 
                 localStorage.removeItem("product")
             }
-            location.reload();//permet de recharger la page avec le nouveau panier après suppression de produit sélectionné
+            location.reload();/*permet de recharger la page avec le nouveau panier après suppression de produit sélectionné*/
         })
     }
-
-    //console.log("storage", productStorage);
 }
-
-
-
 
 
 //***********************Formulaire de commande*************************/
 
-//Sélection et action du bouton "commander"
+//Appel de la fonction "commander"
 
-
-
-
-orderButton()//appel de la fonction du bouton "commander"
 function orderButton() {
 
     const orderButton = document.querySelector("#order")
     orderButton.addEventListener("click", (event) => submitOrder(event))
 }
+orderButton()
 
+//Gestion du bouton "commander"
 function submitOrder(event) {//lui passer le paramètre event
+
     event.preventDefault()
-    if (productStorage.length === 0) alert("Veuillez ajouter des articles dans votre panier")
+    if (productStorage.length === 0) alert("Veuillez ajouter des articles dans votre panier.")
 
-    //if (invalidOrder()) return (mettre tous les regex dans une fonction ?)
+    //Contrôle des champs du formulaire
 
 
-    if (invalidForm()) return
-
-    function invalidForm() {
-
-        const formControl = document.querySelector(".cart__order__form")
-        const inputs = formControl.querySelectorAll("input")
-        inputs.forEach((input) => {
-            if (input.value === "") {
-                alert("Veuillez remplir tous les champs")
-                return true
-            }
-            return false
-        })
+    if (invalidFirstName()) return
+    function invalidFirstName() {
+        const nameControl = document.querySelector("#firstName").value
+        const lastNameControl = document.querySelector("#lastName").value
+        const regex = /^[A-Z][A-Za-z\é\è\ê\ë\ô\ö\ï\î\-\'][^0-9\^ ]+$/
+        if (regex.test(nameControl) === false) {
+            alert("Veuillez saisir un nom valide avec une majuscule.")
+            return true
+        }
+        return false
     }
 
-    if (invalidEmail()) return
+    if (invalidLastName()) return
+    function invalidLastName() {
+        const lastNameControl = document.querySelector("#lastName").value
+        const regex = /^[A-Z][A-Za-z\é\è\ê\ë\ô\ö\ï\î\-\'][^0-9\^ ]+$/
+        if (regex.test(lastNameControl) === false) {
+            alert("Veuillez saisir un nom valide avec une majuscule.")
+            return true
+        }
+        return false
+    }
 
-    function invalidEmail() {//comment faire pour interdire les majuscules ?
+
+    if (invalidAdress()) return
+    function invalidAdress() {
+        const addressControl = document.querySelector("#address").value
+        const regex = /^[0-9]+\s*([a-zA-Z\-\']+\s*[a-zA-Z\-\'])*$/
+        if (regex.test(addressControl) === false) {
+            alert("Veuillez saisir une adresse valide.")
+            return true
+        }
+        return false
+    }
+
+
+
+    if (invalidCity()) return
+    function invalidCity() {
+        const cityControl = document.querySelector("#city").value
+        const regex = /[0-9]{5} [A-Za-z\-\']{3,40}$/
+        if (regex.test(cityControl) === false) {
+            alert("Veuillez saisir un code postal suivi d'une ville valide.")
+            return true
+        }
+        return false
+    }
+
+
+    if (invalidEmail()) return
+    function invalidEmail() {
         const emailControl = document.querySelector("#email").value
-        const regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/
+        const regex = /^[0-9\a-z\.]+@([0-9\a-z]+\.)+[\a-z]{2,4}$/
         if (regex.test(emailControl) === false) {
             alert("Veuillez saisir une adresse mail valide en minuscules")
             return true
@@ -270,57 +302,10 @@ function submitOrder(event) {//lui passer le paramètre event
         return false
     }
 
-    if (invalidCity()) return
 
-    function invalidCity() {
-        const cityControl = document.querySelector("#city").value
-        const regex = /[0-9]{5} [A-Za-z]{3,40}$/
-        if (regex.test(cityControl) === false) {
-            alert("Veuillez saisir un code postal suivi d'une ville valide")
-            return true
-        }
-        return false
-    }
-
-
-    const form = document.querySelector("#cart__order__form")
-
-    const firstName = document.querySelector("#firstName").value
-    const lastName = document.querySelector("#lastName").value
-    const address = document.querySelector("#address").value
-    const city = document.querySelector("#city").value
-    const email = document.querySelector("#email").value
-
-
-    const body = createRequestBody()
-
-    function createRequestBody() {
-        const body = {
-            contact: {
-                firstName: firstName,
-                lastName: lastName,
-                address: address,
-                city: city,
-                email: email
-
-            },
-            products: getIds()
-        }
-        return body
-
-    }
-
-
-    function getIds(data) { //récupération de l'array comprenant les ids des produits du panier
-
-        let ids = []
-        for (let i = 0; i < productStorage.length; i++) {
-
-            let id = productStorage[i].idProduct
-            ids.push(id)
-        }
-        return ids
-    }
+    //Envoi du formulaire dans le local Storage
+    JSON.parse(localStorage.getItem("form"));
+    localStorage.setItem("form", JSON.stringify(createRequestBody()))
 
 
     fetch("http://localhost:3000/api/products/order", {
@@ -334,11 +319,41 @@ function submitOrder(event) {//lui passer le paramètre event
         .then((data) => {
 
             const orderId = data.orderId
-            //window.location.href permet de changer de page (ici c'est donc lors de l'envoi de la commande avec la requete fetch !)
+
             window.location.href = "../html/confirmation.html" + "?orderId=" + orderId // donc dans la barre d'adresse, il y aura "?orderId=" suivi du numero de commande"
+
             return console.log(data)
         })
 
         .catch((err) => console.log(err))
 
+}
+
+
+function createRequestBody() {
+    const body = {
+        contact: {
+            firstName: document.querySelector("#firstName").value,
+            lastName: document.querySelector("#lastName").value,
+            address: document.querySelector("#address").value,
+            city: document.querySelector("#city").value,
+            email: document.querySelector("#email").value
+        },
+        products: getIds()
+    }
+
+    return body
+
+}
+
+
+function getIds() { //récupération de l'array comprenant les ids des produits du panier
+
+    let ids = []
+    for (let i = 0; i < productStorage.length; i++) {
+
+        let id = productStorage[i].idProduct
+        ids.push(id)
+    }
+    return ids
 }
