@@ -240,73 +240,15 @@ function submitOrder(event) {//lui passer le paramètre event
     if (productStorage.length === 0) alert("Veuillez ajouter des articles dans votre panier.")
 
     //Contrôle des champs du formulaire
-
-
     if (invalidFirstName()) return
-    function invalidFirstName() {
-        const nameControl = document.querySelector("#firstName").value
-        const lastNameControl = document.querySelector("#lastName").value
-        const regex = /^[A-Z][A-Za-z\é\è\ê\ë\ô\ö\ï\î\-\'][^0-9\^ ]+$/
-        if (regex.test(nameControl) === false) {
-            alert("Veuillez saisir un nom valide avec une majuscule.")
-            return true
-        }
-        return false
-    }
-
     if (invalidLastName()) return
-    function invalidLastName() {
-        const lastNameControl = document.querySelector("#lastName").value
-        const regex = /^[A-Z][A-Za-z\é\è\ê\ë\ô\ö\ï\î\-\'][^0-9\^ ]+$/
-        if (regex.test(lastNameControl) === false) {
-            alert("Veuillez saisir un nom valide avec une majuscule.")
-            return true
-        }
-        return false
-    }
-
-
     if (invalidAdress()) return
-    function invalidAdress() {
-        const addressControl = document.querySelector("#address").value
-        const regex = /^[0-9]+\s*([a-zA-Z\-\']+\s*[a-zA-Z\-\'])*$/
-        if (regex.test(addressControl) === false) {
-            alert("Veuillez saisir une adresse valide.")
-            return true
-        }
-        return false
-    }
-
-
-
     if (invalidCity()) return
-    function invalidCity() {
-        const cityControl = document.querySelector("#city").value
-        const regex = /[0-9]{5} [A-Za-z\-\']{3,40}$/
-        if (regex.test(cityControl) === false) {
-            alert("Veuillez saisir un code postal suivi d'une ville valide.")
-            return true
-        }
-        return false
-    }
-
-
     if (invalidEmail()) return
-    function invalidEmail() {
-        const emailControl = document.querySelector("#email").value
-        const regex = /^[0-9\a-z\.]+@([0-9\a-z]+\.)+[\a-z]{2,4}$/
-        if (regex.test(emailControl) === false) {
-            alert("Veuillez saisir une adresse mail valide en minuscules")
-            return true
-        }
-        return false
-    }
-
-
+    
     //Envoi du formulaire dans le local Storage
     JSON.parse(localStorage.getItem("form"));
     localStorage.setItem("form", JSON.stringify(createRequestBody()))
-
 
     fetch("http://localhost:3000/api/products/order", {
         method: "POST",
@@ -327,6 +269,62 @@ function submitOrder(event) {//lui passer le paramètre event
 
         .catch((err) => console.log(err))
 
+}
+
+
+function invalidFirstName() {
+    const nameControl = document.querySelector("#firstName").value
+    const lastNameControl = document.querySelector("#lastName").value
+    const regex = /^[A-Z][A-Za-z\é\è\ê\ë\ô\ö\ï\î\-\'][^0-9\^ ]+$/
+    if (regex.test(nameControl) === false) {
+        alert("Veuillez saisir un nom valide avec une majuscule.")
+        return true
+    }
+    return false
+}
+
+
+function invalidLastName() {
+    const lastNameControl = document.querySelector("#lastName").value
+    const regex = /^[A-Z][A-Za-z\é\è\ê\ë\ô\ö\ï\î\-\'][^0-9\^ ]+$/
+    if (regex.test(lastNameControl) === false) {
+        alert("Veuillez saisir un nom valide avec une majuscule.")
+        return true
+    }
+    return false
+}
+
+
+function invalidAdress() {
+    const addressControl = document.querySelector("#address").value
+    const regex = /^[0-9]+\s*([a-zA-Z\-\']+\s*[a-zA-Z\-\'])*$/
+    if (regex.test(addressControl) === false) {
+        alert("Veuillez saisir une adresse valide.")
+        return true
+    }
+    return false
+}
+
+
+function invalidCity() {
+    const cityControl = document.querySelector("#city").value
+    const regex = /[0-9]{5} [A-Za-z\-\']{3,40}$/
+    if (regex.test(cityControl) === false) {
+        alert("Veuillez saisir un code postal suivi d'une ville valide.")
+        return true
+    }
+    return false
+}
+
+
+function invalidEmail() {
+    const emailControl = document.querySelector("#email").value
+    const regex = /^[0-9\a-z\.]+@([0-9\a-z]+\.)+[\a-z]{2,4}$/
+    if (regex.test(emailControl) === false) {
+        alert("Veuillez saisir une adresse mail valide en minuscules")
+        return true
+    }
+    return false
 }
 
 
