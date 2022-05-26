@@ -19,7 +19,7 @@ fetch('http://localhost:3000/api/products')
 
 //*************************************** CREATION DES ELEMENTS ********************************************
 
-
+//Organisation des éléments crées
 function displayItem(product) {
     const linkItem = createLink(product)
     const article = createArticle()
@@ -71,7 +71,6 @@ function createTitleItem(product) {
     h3.textContent = product.name;
 
     return h3
-
 }
 
 //Création de la description du produit
