@@ -59,7 +59,7 @@ function createCartContent(item) {
 }
 
 //Création de la description du produit
-function createDescription(item) {//Crée la description du produit en générant son nom, sa couleur et son prix
+function createDescription(item) {
 
     const description = document.createElement("div")
     description.classList.add("cart__item__content__description")
@@ -153,7 +153,6 @@ function displayTotalQuantity() {
 
     }
 
-
     const total = document.getElementById('totalQuantity')
     total.textContent = totalQuantity
 
@@ -167,7 +166,6 @@ async function displayTotalPrice() {
 
     for (let i = 0; i < itemQuantity.length; i++) {
 
-        /*Récupère les infos d'un produit à partir de son id pour en extraire son prix*/
         let price = await fetch('http://localhost:3000/api/products/' + productStorage[i].idProduct)
 
             .then((resp) => resp.json())
@@ -224,7 +222,7 @@ function addDeleteFunction() {
 
 //***********************Formulaire de commande*************************/
 
-//Appel de la fonction "commander"
+
 
 function orderButton() {
 
@@ -240,47 +238,67 @@ function submitOrder(event) {//lui passer le paramètre event
     if (productStorage.length === 0) alert("Veuillez ajouter des articles dans votre panier.")
 
     //Contrôle des champs du formulaire
-    if (invalidFirstName()) return
-    if (invalidLastName()) return
-    if (invalidAdress()) return
-    if (invalidCity()) return
-    if (invalidEmail()) return
     
-    //Envoi du formulaire dans le local Storage
-    JSON.parse(localStorage.getItem("form"));
-    localStorage.setItem("form", JSON.stringify(createRequestBody()))
+    if (invalidFirstName()) {
+        let error = document.getElementById('firstNameErrorMsg');
+        error.textContent = "Veuillez saisir un prénom valide avec une majuscule.";
+    }
 
-    fetch("http://localhost:3000/api/products/order", {
-        method: "POST",
-        body: JSON.stringify(createRequestBody()),
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-        .then((res) => res.json())
-        .then((data) => {
+    if (invalidLastName()) {
+        let error = document.getElementById('lastNameErrorMsg')
+        error.textContent = "Veuillez saisir un nom valide avec une majuscule.";
+    }
+    if (invalidAdress()){
+        let error = document.getElementById('addressErrorMsg')
+        error.textContent = "Veuillez saisir une adresse valide.";
+    }
+    if (invalidCity()) {
+        let error = document.getElementById('cityErrorMsg')
+        error.textContent = "Veuillez saisir un code postal suivi d'une ville valide.";
+    }
+    if (invalidEmail()) {
+        let error = document.getElementById('emailErrorMsg')
+        error.textContent = "Veuillez saisir une adresse mail valide en minuscules.";
+    }
 
-            const orderId = data.orderId
+    if (invalidFirstName()===false && invalidLastName()===false && invalidAdress()===false && invalidCity()===false && invalidEmail()===false && productStorage.length !== 0) {
 
-            window.location.href = "../html/confirmation.html" + "?orderId=" + orderId // donc dans la barre d'adresse, il y aura "?orderId=" suivi du numero de commande"
 
-            return console.log(data)
+
+        //Envoi du formulaire dans le local Storage
+        JSON.parse(localStorage.getItem("form"));
+        localStorage.setItem("form", JSON.stringify(createRequestBody()))
+
+        fetch("http://localhost:3000/api/products/order", {
+            method: "POST",
+            body: JSON.stringify(createRequestBody()),
+            headers: {
+                "Content-Type": "application/json"
+            }
         })
+            .then((res) => res.json())
+            .then((data) => {
 
-        .catch((err) => console.log(err))
+                const orderId = data.orderId
 
+                window.location.href = "../html/confirmation.html" + "?orderId=" + orderId // donc dans la barre d'adresse, il y aura "?orderId=" suivi du numero de commande"
+
+                return console.log(data)
+            })
+
+            .catch((err) => console.log(err))
+    }
 }
 
 
 function invalidFirstName() {
     const nameControl = document.querySelector("#firstName").value
-    const lastNameControl = document.querySelector("#lastName").value
     const regex = /^[A-Z][A-Za-z\é\è\ê\ë\ô\ö\ï\î\-\'][^0-9\^ ]+$/
     if (regex.test(nameControl) === false) {
-        alert("Veuillez saisir un nom valide avec une majuscule.")
-        return true
+        
+        return true /*donc, effectivement, il y a une erreur et un message d'alerte apparaît*/
     }
-    return false
+    return false /*donc il n'y a pas d'erreur et la condition d'invalidité est "false"*/
 }
 
 
@@ -288,7 +306,7 @@ function invalidLastName() {
     const lastNameControl = document.querySelector("#lastName").value
     const regex = /^[A-Z][A-Za-z\é\è\ê\ë\ô\ö\ï\î\-\'][^0-9\^ ]+$/
     if (regex.test(lastNameControl) === false) {
-        alert("Veuillez saisir un nom valide avec une majuscule.")
+        
         return true
     }
     return false
@@ -299,7 +317,7 @@ function invalidAdress() {
     const addressControl = document.querySelector("#address").value
     const regex = /^[0-9]+\s*([a-zA-Z\-\']+\s*[a-zA-Z\-\'])*$/
     if (regex.test(addressControl) === false) {
-        alert("Veuillez saisir une adresse valide.")
+        
         return true
     }
     return false
@@ -310,7 +328,7 @@ function invalidCity() {
     const cityControl = document.querySelector("#city").value
     const regex = /[0-9]{5} [A-Za-z\-\']{3,40}$/
     if (regex.test(cityControl) === false) {
-        alert("Veuillez saisir un code postal suivi d'une ville valide.")
+        
         return true
     }
     return false
@@ -321,7 +339,7 @@ function invalidEmail() {
     const emailControl = document.querySelector("#email").value
     const regex = /^[0-9\a-z\.]+@([0-9\a-z]+\.)+[\a-z]{2,4}$/
     if (regex.test(emailControl) === false) {
-        alert("Veuillez saisir une adresse mail valide en minuscules")
+        
         return true
     }
     return false
