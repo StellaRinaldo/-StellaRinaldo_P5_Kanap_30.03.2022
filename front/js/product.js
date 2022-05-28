@@ -107,8 +107,6 @@ function saveCart(event, data) {
         alert("Veuillez choisir une quantité.");
     }
 
-    
-
     updateItem(data)
 }
 
