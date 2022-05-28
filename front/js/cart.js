@@ -18,7 +18,7 @@ function displayItem(item) {
 
     const cartItemContent = createCartContent(item)
     article.appendChild(cartItemContent)
-    //displayArticle(article)
+    
 
     displayTotalQuantity()
     displayTotalPrice()
