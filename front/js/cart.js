@@ -122,18 +122,17 @@ function addQuantityToSettings(item) {
     inputQuantity.setAttribute("value", item.quantity)
     inputQuantity.classList.add("itemQuantity")
 
-    inputQuantity.addEventListener("change", () => changeQuantity(item.idProduct, inputQuantity.value))
+    inputQuantity.addEventListener("change", () => changeQuantity(item.idProduct, inputQuantity.value, item.color))
 
     return divQuantity
 }
 
 //Ajout de la posiibilité de changer la quantité directement depuis la page panier
-function changeQuantity(idSelect, newQuantity) {
-
-    const itemSelect = productStorage.find(item => item.idProduct === idSelect)
+function changeQuantity(idSelect, newQuantity, colorSelect) {
+    const itemSelect = productStorage.find(item => item.idProduct === idSelect && item.color === colorSelect)
     itemSelect.quantity = Number(newQuantity)
     localStorage.setItem("product", JSON.stringify(productStorage))
-    console.log(itemSelect);
+    //console.log(itemSelect);
     displayTotalQuantity()
     displayTotalPrice()
     return itemSelect
@@ -149,14 +148,14 @@ function displayTotalQuantity() {
 
         totalQuantity += itemQuantity[i].valueAsNumber//valueAsNumber renvoi à l'élément présent dans le console.log de itemQuantity("NodeList")
         //Il y a deux termes pour la valeur : "value" qui est en format string et "valueAsNumber" qui est au format "Number"
-        console.log(itemQuantity)
+        //console.log(itemQuantity)
 
     }
 
     const total = document.getElementById('totalQuantity')
     total.textContent = totalQuantity
 
-    console.log("quantity", totalQuantity);
+    //console.log("quantity", totalQuantity);
 }
 
 //Affichage du prix total après le calcul de la quantité
@@ -180,7 +179,7 @@ async function displayTotalPrice() {
 
     const finalTotal = document.getElementById('totalPrice')
     finalTotal.textContent = totalPrice
-    console.log("total", totalPrice);
+    //console.log("total", totalPrice);
 }
 
 //Création du bouton "supprimer"
@@ -207,8 +206,12 @@ function addDeleteFunction() {
 
         deleteItem[i].addEventListener('click', () => {
 
-            let productSelect = productStorage[i]
-            productStorage = productStorage.filter(element => element.idProduct !== productSelect.idProduct && element.color !== productSelect.color)//filter = extraire
+            let productSelect = productStorage[i].idProduct + productStorage[i].color
+            productStorage = productStorage.filter(element => element.idProduct + element.color !== productSelect)//filter = extraire
+            //productStorage = productStorage.filter(element => element.idProduct !== productSelect.idProduct && element.color !== productSelect.color)//filter = extraire
+            
+            console.log(productStorage);
+
             localStorage.setItem("product", JSON.stringify(productStorage));
             if (productStorage.lenght === 0) {
 
