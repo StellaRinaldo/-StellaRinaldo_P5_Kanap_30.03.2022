@@ -104,7 +104,11 @@ function saveCart(event, data) {
     }
 
     if (invalidQuantity()) {
-        alert("Veuillez choisir une quantité.");
+        alert("Veuillez choisir une quantité entre 1 et 100.");
+    }
+
+    if (maxQuantity()) {
+        alert("Veuillez choisir une quantité entre 1 et 100.");
     }
 
     updateItem(data)
@@ -121,6 +125,17 @@ function invalidColor() {
     return false
 }
 
+function changeColorProduct() { //Permet de réinitialiser le bouton "Ajouter au panier" lorsque l'on change la couleur du produit
+    let colors = document.querySelector("#colors");
+    if (colors.addEventListener('change', () => {
+        const addCart = document.querySelector("#addToCart");
+        addCart.textContent = "Ajouter au panier";
+        addCart.style.color = "white";
+    })) {
+        return true
+    }
+    return true  
+}
 
 function invalidQuantity() {
     let quantity = document.querySelector("#quantity");
@@ -131,8 +146,16 @@ function invalidQuantity() {
     return false
 }
 
+function maxQuantity() {
+    let quantity = document.querySelector("#quantity");
+    if (quantity.value > 100) {
+        return true
+    }
+    return false
+}
 
 function changeAddButton() {
+    //alert ("Article ajouté !")
     const addCart = document.querySelector("#addToCart");
     addCart.textContent = "Article(s) ajouté(s) !";
     addCart.style.color = "green";
@@ -145,11 +168,18 @@ function changeAddButton() {
 
 function updateItem(data) {
 
-    if (invalidColor(data) === false && invalidQuantity(data) === false) {
+    if (invalidColor(data) === false 
+        && invalidQuantity(data) === false 
+        && maxQuantity(data) === false
+        && changeColorProduct(data) === true) {
+
+        /*Ecrire une formule pour réinitialiser le bouton Add lorsque l'on sélectionne une autre couleur: 
+        Quelque chose du style: si la valeur sélectionnée est différente de celle qui est déjà dans le panier (même ID mais couleur différente)
+        alors  */
 
         changeAddButton()
         //Creation de l'objet "product" qui sera stocké dans le Local Storage 
-        let product = {
+        /*let product = {
             productName: data.name,
             idProduct: data._id,
             quantity: Number(quantity.value),
@@ -157,6 +187,12 @@ function updateItem(data) {
             imageUrl: data.imageUrl,
             altTxt: data.altTxt,
             description: data.description,
+        }
+        console.log(product);*/
+        let product = {
+            idProduct: data._id,
+            quantity: Number(quantity.value),
+            color: colors.value,
         }
         console.log(product);
 

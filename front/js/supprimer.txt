@@ -1,0 +1,1 @@
+let suppBtn = document.querySelectorAll(".deleteItem");
